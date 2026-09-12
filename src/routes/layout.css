@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+
+@theme {
+	--color-bg: #0e0f11;
+	--color-surface: #151619;
+	--color-surface-2: #1b1d21;
+	--color-border: #24262b;
+	--color-border-2: #34373d;
+	--color-text: #e9e9eb;
+	--color-muted: #8a8f98;
+	--color-accent: #5e6ad2;
+	--color-p-low: #3fb950;
+	--color-p-med: #4f8ff7;
+	--color-p-high: #f2a33c;
+	--color-p-urgent: #e5484d;
+	/* signal colors */
+	--color-alert: #d13438; /* unread / changed badge (Teams red) */
+	--color-alert-hover: #b52d31; /* Leave button hover */
+	--color-alert-soft: #f08080;
+	--color-teams: #5b5fc7; /* Teams purple: unread dot */
+	--color-draft: #e0605a; /* calendar draft block */
+	--color-avail: #6bb700;
+	--color-busy: #c4314b;
+	--color-away: #ffaa44;
+	/* markdown accents (editor + preview) */
+	--md-h1: #e8a2a2;
+	--md-h2: #e9c98c;
+	--md-h3: #b8d193;
+	--md-h4: #cfa8d6;
+	--md-h5: #94d0d0;
+	--md-strong: #e9c98c;
+	--md-code: #94d0d0;
+	/* JetBrains Mono everywhere (Omarchy's default), served from static/fonts; OFL licensed */
+	--font-sans: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root {
+	/* In-page scale. 1 = none: the app is enlarged with Brave's own zoom (Cmd +) instead, because
+	   CSS zoom throws off extensions that map the mouse to text (Grammarly put fixes mid-word).
+	   The call window, which Brave's zoom doesn't reach, sets its own (calls/window.svelte.ts). */
+	--ui-zoom: 1;
+}
+html {
+	color-scheme: dark;
+	zoom: var(--ui-zoom);
+	overflow: hidden;
+}
+/* 100vh is not divided by zoom in Chromium -> app frame must be */
+.app-frame {
+	height: calc(100vh / var(--ui-zoom));
+}
+/* PWA window-controls-overlay: the title bar becomes ours; keep the sidebar header clear of the traffic lights */
+@media (display-mode: window-controls-overlay) {
+	.app-frame {
+		height: calc((100vh - env(titlebar-area-height, 0px)) / var(--ui-zoom));
+		margin-top: calc(env(titlebar-area-height, 0px) / var(--ui-zoom));
+	}
+	.titlebar-drag {
+		position: fixed; top: 0; left: 0; right: 0;
+		height: env(titlebar-area-height, 0px);
+		-webkit-app-region: drag; app-region: drag;
+		background: var(--color-surface);
+		z-index: 1000;
+	}
+}
+
+/* Text sizes are "base × --text-scale". `inline` makes each utility compute at the element, so an area
+   (Projects, Support, Tasks, Clients) can set its own --text-scale from Settings. Spacing isn't scaled. */
+@theme inline {
+	--text-2xs: calc(10px * var(--text-scale, 1));
+	--text-caption: calc(11px * var(--text-scale, 1));
+	--text-body: calc(13px * var(--text-scale, 1));
+	--text-xs: calc(0.75rem * var(--text-scale, 1));
+	--text-sm: calc(0.875rem * var(--text-scale, 1));
+	--text-md: calc(15px * var(--text-scale, 1));
+	--text-base: calc(1rem * var(--text-scale, 1));
+	--text-lg: calc(1.125rem * var(--text-scale, 1));
+	--text-xl: calc(1.25rem * var(--text-scale, 1));
+}
+
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono/JetBrainsMono-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono/JetBrainsMono-Italic.woff2') format('woff2'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono/JetBrainsMono-Medium.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono/JetBrainsMono-SemiBold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono/JetBrainsMono-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'JetBrains Mono'; src: url('/fonts/jetbrains-mono/JetBrainsMono-BoldItalic.woff2') format('woff2'); font-weight: 700; font-style: italic; font-display: swap; }
+
+body {
+	background: var(--color-bg);
+	color: var(--color-text);
+	font-family: var(--font-sans);
+	font-size: 13px;
+	-webkit-font-smoothing: antialiased;
+}
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--color-border-2) transparent;
+}
+
+/* ---- shared UI classes (Tailwind v4 @utility so variants like hover:/md: still compose) */
+@utility link-muted { @apply text-muted hover:text-text; }
+@utility focus-accent { @apply focus:border-accent focus:outline-none; }
+@utility field-label { @apply mb-1.5 text-caption text-muted uppercase; }
+@utility err { @apply text-caption text-p-urgent; }
+@utility btn-primary { @apply rounded-md bg-accent text-white disabled:opacity-50; }
+@utility btn { @apply rounded-md border border-border whitespace-nowrap disabled:opacity-50; }
+@utility pane-header { @apply flex h-12 shrink-0 items-center border-b border-border; }
+@utility nav-active { @apply bg-surface-2 text-text; }
+@utility nav-idle { @apply text-muted hover:bg-surface-2/60 hover:text-text; }
+@utility menu { @apply absolute top-full right-0 z-30 mt-1 rounded-md border border-border bg-surface p-1 shadow-xl; }
+@utility menu-item { @apply flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs; }
+@utility menu-idle { @apply text-muted hover:bg-surface-2 hover:text-text; }
+@utility badge-alert { @apply rounded-full bg-alert px-1.5 text-2xs font-bold text-white; }
+
+/* ---- Teams message body (rendered HTML from Graph) */
+.teams-msg { overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
+.teams-msg img { max-width: min(100%, 520px); max-height: 360px; border-radius: 6px; display: block; margin: .3em 0; border: 1px solid var(--color-border); cursor: zoom-in; }
+.teams-msg .mention { color: var(--color-accent); font-weight: 500; }
+.teams-msg .card { border: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-bg) 55%, transparent); border-radius: 8px; padding: .7em .9em; margin: .2em 0; font-size: calc(13px * var(--text-scale, 1)); line-height: 1.55; min-width: 280px; }
+.teams-msg .card-title { font-size: calc(15px * var(--text-scale, 1)); font-weight: 600; margin-bottom: .5em; }
+.teams-msg .card-h { font-weight: 600; margin-top: .5em; }
+.teams-msg .card-p { margin: .15em 0; }
+.teams-msg .card-actions { margin-top: .8em; display: flex; gap: .5em; flex-wrap: wrap; }
+.teams-msg .card-btn { display: inline-block; border: 1px solid var(--color-border-2); border-radius: 6px; padding: .35em .9em; font-size: calc(12px * var(--text-scale, 1)); font-weight: 500; color: var(--color-text); text-decoration: none; background: var(--color-surface); }
+.teams-msg .card-btn:hover { border-color: var(--color-accent); }
+.teams-msg .muted { color: var(--color-muted); }
+.teams-msg .file { display: inline-block; border: 1px solid var(--color-border); border-radius: 6px; padding: .2em .5em; margin: .2em 0; font-size: calc(11px * var(--text-scale, 1)); text-decoration: none; }
+.teams-msg a { color: var(--color-accent); text-decoration: underline; }
+.teams-msg p { margin: 0 0 .4em; }
+.teams-msg p:last-child { margin: 0; }
+.teams-msg ul, .teams-msg ol { padding-left: 1.2em; }
+.teams-msg blockquote { border-left: 2px solid var(--color-border-2); padding-left: .8em; color: var(--color-muted); margin: .3em 0; }
+.teams-msg blockquote.quote { background: color-mix(in srgb, var(--color-bg) 60%, transparent); border-radius: 6px; padding: .4em .8em; margin: .2em 0 .5em; font-size: calc(12px * var(--text-scale, 1)); }
+.teams-msg blockquote.quote .who { display: block; color: var(--color-muted); font-size: calc(11px * var(--text-scale, 1)); margin-bottom: .15em; }
+.teams-msg code, .teams-msg pre { background: var(--color-surface-2); border-radius: 4px; padding: .1em .3em; font-size: calc(12px * var(--text-scale, 1)); }
+.teams-msg pre { padding: .6em .8em; overflow-x: auto; }
+
+/* ---- markdown preview (client notes) */
+.prose-md { max-width: 72ch; font-size: calc(14px * var(--text-scale, 1)); line-height: 1.65; }
+.prose-md h1 { font-size: 1.6em; font-weight: 700; margin: 0 0 .6em; color: var(--md-h1); }
+.prose-md h2 { font-size: 1.35em; font-weight: 700; margin: 1.2em 0 .4em; color: var(--md-h2); }
+.prose-md h3 { font-size: 1.2em; font-weight: 600; margin: 1em 0 .3em; color: var(--md-h3); }
+.prose-md h4 { font-size: 1.1em; font-weight: 600; margin: 1em 0 .3em; color: var(--md-h4); }
+.prose-md h5 { font-size: 1em; font-weight: 600; margin: 1em 0 .3em; color: var(--md-h5); }
+.prose-md strong { color: var(--md-strong); }
+.prose-md p { margin: 0 0 .8em; }
+.prose-md ul, .prose-md ol { padding-left: 1.4em; margin: 0 0 .8em; }
+.prose-md li { margin: .2em 0; }
+.prose-md code { color: var(--md-code); background: var(--color-surface-2); padding: .1em .3em; border-radius: 4px; font-size: .9em; }
+.prose-md pre { background: var(--color-surface-2); padding: .8em 1em; border-radius: 6px; overflow-x: auto; }
+.prose-md blockquote { border-left: 2px solid var(--color-border-2); padding-left: 1em; color: var(--color-muted); margin: 0 0 .8em; }
+.prose-md a { color: var(--color-accent); }
+.prose-md img { max-width: 100%; border-radius: 6px; border: 1px solid var(--color-border); margin: 0 0 .8em; cursor: zoom-in; }
+.prose-md hr { border: 0; border-top: 1px solid var(--color-border); margin: 1.2em 0; }
