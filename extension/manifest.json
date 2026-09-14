@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "OpsCenter Teams launcher skip",
+  "version": "2.0",
+  "description": "Clicks \"Continue on this browser\" on the Teams meeting launcher, then closes the launcher tab once it navigates into the full web client.",
+  "permissions": [
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://teams.microsoft.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://teams.microsoft.com/dl/launcher/*"
+      ],
+      "js": [
+        "launcher.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}

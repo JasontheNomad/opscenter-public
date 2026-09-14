@@ -1,0 +1,17 @@
+# Arch / systemd user unit. Install:
+#   cp deploy/opscenter.service ~/.config/systemd/user/ && systemctl --user enable --now opscenter
+[Unit]
+Description=OpsCenter
+After=network.target
+
+[Service]
+WorkingDirectory=%h/code/opscenter
+Environment=PORT=3000
+Environment=HOST=127.0.0.1
+Environment=BODY_SIZE_LIMIT=25M
+ExecStart=/usr/bin/node --env-file=.env build
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target
